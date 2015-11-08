@@ -1,0 +1,38 @@
+/*
+  PIN 15, 18-21 (A0-A3) LED Trial
+  Turns on LED connected to PIN 15, 18-21 (A0-A3) on and off.
+*/
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  pinMode(21, OUTPUT);  // make A3 to output
+  pinMode(20, OUTPUT);  // make A2 to output
+  pinMode(19, OUTPUT);  // make A1 to output
+  pinMode(18, OUTPUT);  // make A0 to output
+  pinMode(15, OUTPUT);  // make 15 to output
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(21, HIGH); // turn A3 on
+  delay(500);             // delay for 0.5s
+  digitalWrite(20, HIGH); // turn A2 on
+  delay(500);             // delay for 0.5s
+  digitalWrite(19, HIGH); // turn A1 on
+  delay(500);             // delay for 0.5s
+  digitalWrite(18, HIGH); // turn A0 on
+  delay(500);             // delay for 0.5s
+  digitalWrite(15, HIGH); // turn 15 on
+  delay(500);             // delay for 0.5s
+  
+  digitalWrite(21, LOW);  // turn A3 off
+  delay(500);             // delay for 0.5s
+  digitalWrite(20, LOW);  // turn A2 off
+  delay(500);             // delay for 0.5s
+  digitalWrite(19, LOW);  // turn A1 off
+  delay(500);             // delay for 0.5s
+  digitalWrite(18, LOW);  // turn A0 off
+  delay(500);             // delay for 0.5s
+  digitalWrite(15, LOW);  // turn 15 off
+  delay(500);             // delay for 0.5s
+}
