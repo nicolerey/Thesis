@@ -55,32 +55,11 @@ WHERE: "char *string" - contains the json
 	of the "char *string"
 --------------------------------------------
 
+
 FUNCTIONS:
--------- void thesis_start_request() -------
+-------- void thesis_request(const char*) --------
 Return: void
-Parameter: none
-Description: This function will setup
-	CURL. This must be called once
-	in the initialization section
-	in every project.
---------------------------------------------
-
--------- void thesis_end_request() ---------
-Return: void
-Parameter: none
-Description: This function will do the
-	necessary steps to close a
-	request and free allocated
-	strings during the request.
-	This should be called every
-	after operation that involves
-	requesting through curl and
-	manipulating json datas.
---------------------------------------------
-
--------- void thesis_request(char*) --------
-Return: void
-Parameter: char* or string
+Parameter: const char* or string
 Description: This function will perform a
 	request. May it be retrieve or
 	save data in the database. Depending
