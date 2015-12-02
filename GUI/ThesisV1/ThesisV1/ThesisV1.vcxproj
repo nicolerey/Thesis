@@ -42,13 +42,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Harris Baldon\Desktop\VStudio Try\ThesisV1\ThesisV1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Harris Baldon\Desktop\VStudio Try\ThesisV1\ThesisV1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Thesis\GUI\ThesisV1\ThesisV1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Thesis\GUI\ThesisV1\ThesisV1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Harris Baldon\Desktop\VStudio Try\ThesisV1\ThesisV1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Harris Baldon\Desktop\VStudio Try\ThesisV1\ThesisV1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Thesis\GUI\ThesisV1\ThesisV1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Thesis\GUI\ThesisV1\ThesisV1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
