@@ -1,0 +1,37 @@
+﻿Build started 02/12/2015 4:59:49 PM.
+     1>Project "D:\Thesis\GUI\ThesisV1\ThesisV1\ThesisV1.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\ThesisV1.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Debug\ThesisV1.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\ThesisV1.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Thesis.cpp ThesisV1.cpp ThesisV1Dlg.cpp
+         ThesisV1Dlg.cpp
+         ThesisV1.cpp
+         Thesis.cpp
+         Generating Code...
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _DEBUG /D _AFXDLL /l"0x0409" /IDebug\ /nologo /fo"Debug\ThesisV1.res" ThesisV1.rc 
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\ThesisV1.exe.embed.manifest.res" Debug\ThesisV1_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Thesis\GUI\ThesisV1\Debug\ThesisV1.exe" /INCREMENTAL /NOLOGO libcurl.lib /MANIFEST /ManifestFile:"Debug\ThesisV1.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Thesis\GUI\ThesisV1\Debug\ThesisV1.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Thesis\GUI\ThesisV1\Debug\ThesisV1.lib" /MACHINE:X86 Debug\ThesisV1.res
+         Debug\ThesisV1.exe.embed.manifest.res
+         Debug\stdafx.obj
+         Debug\Thesis.obj
+         Debug\ThesisV1.obj
+         Debug\ThesisV1Dlg.obj
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\ThesisV1.exe.embed.manifest" /manifest Debug\ThesisV1.exe.intermediate.manifest "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+         All outputs are up-to-date.
+       LinkEmbedManifest:
+         All outputs are up-to-date.
+         ThesisV1.vcxproj -> D:\Thesis\GUI\ThesisV1\Debug\ThesisV1.exe
+       FinalizeBuildStatus:
+         Deleting file "Debug\ThesisV1.unsuccessfulbuild".
+         Touching "Debug\ThesisV1.lastbuildstate".
+     1>Done Building Project "D:\Thesis\GUI\ThesisV1\ThesisV1\ThesisV1.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:04.13

@@ -1,0 +1,71 @@
+Thesis.h
+
+GLOBAL VARIABLES:
+------------- Document response -------------
+Type: Document
+Name: response
+Description: This variable contains all
+	the data that was being requested.
+Data structure:
+	{
+	  "status":,
+	  "message":,
+	  "data":[]
+	}
+
+WHERE: "status" - boolean. TRUE if the
+	request is success. FALSE if not.
+
+	"message" - string. Will contain
+	the message from the request. If
+	it's an error, this will contain
+	the error message.
+
+	"data" - array or NULL. If the
+	status is TRUE, this will contain
+	an array of datas. NULL if the
+	status is FALSE.
+
+How to acess: This variable can be accessed
+	like an associative array.
+
+EXAMPLE: A request to get all data in 'rooms' table.
+	response["status"].GetBoolean() OR
+	response["status"].GetInt()
+	response["message"].GetString()
+	response["data"][index number]['rooms_name'].GetString()
+-------------------------------------------
+
+-------------- struct data s --------------
+Type: struct
+Name: s
+Description: This variable contains the
+	json data that is represented
+	by a string. And also contains
+	the length of the whole string.
+Data structure:
+	struct data {
+	   char *string;
+	   size_t len;
+	}
+WHERE: "char *string" - contains the json
+	data.
+
+	"size_t len" - contains the length
+	of the "char *string"
+--------------------------------------------
+
+
+FUNCTIONS:
+-------- void thesis_request(const char*) --------
+Return: void
+Parameter: const char* or string
+Description: This function will perform a
+	request. May it be retrieve or
+	save data in the database. Depending
+	on what function you called in the
+	API. After the request, GLOBAL
+	variable called 'response' will
+	contain all the necessary datas
+	from the API.
+--------------------------------------------
