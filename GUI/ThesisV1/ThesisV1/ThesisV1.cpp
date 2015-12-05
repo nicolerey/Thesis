@@ -5,6 +5,9 @@
 #include "stdafx.h"
 #include "ThesisV1.h"
 #include "ThesisV1Dlg.h"
+#include "MainMenuDlg.h"
+#include "afxdialogex.h"
+#include "Thesis.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -65,7 +68,7 @@ BOOL CThesisV1App::InitInstance()
 	// Change the registry key under which our settings are stored
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("Wireless Management of Room Powerlines"));
 
 	CThesisV1Dlg dlg;
 	m_pMainWnd = &dlg;

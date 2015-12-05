@@ -8,6 +8,8 @@
 #include "afxdialogex.h"
 #include "Thesis.h"
 
+#include "MainMenuDlg.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -174,12 +176,22 @@ void CThesisV1Dlg::OnBnClickedButton1()
 		toDisplay.Format(_T("%s"),response["message"].GetString());
 
 		if(response["status"].GetInt() == 1){
-			MessageBox(toDisplay, 0, MB_ICONINFORMATION);
+			MainMenuDlg main;
+			CDialog dlg;
+
+			this->OnInitDialog();
+			//this->ShowWindow(SW_HIDE);
+			this->EndDialog(0);
+			main.DoModal();
+
+			//MessageBox(toDisplay, 0, MB_ICONINFORMATION);
 		}else{
-			MessageBox(toDisplay, 0, MB_ICONERROR);
+			MessageBox(toDisplay, "Authentication Error!", MB_ICONERROR);
+			CWnd *cedit = GetDlgItem(IDC_EDIT1);
+			cedit->SetWindowTextA(_T(""));
 		}
 	}else{
 		CString errorDisplay(errorMsg);
-		MessageBox(errorDisplay, 0, MB_ICONERROR);
+		MessageBox(errorDisplay, "Server Error!", MB_ICONERROR);
 	}
 }
