@@ -43,4 +43,4 @@ while True:
 
 	time.sleep(1)
 
-FileMain("Daily scheduling stopped")
+FileMain("Tuesday scheduling stopped")
