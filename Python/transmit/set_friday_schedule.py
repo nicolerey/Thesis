@@ -42,3 +42,5 @@ while True:
 		break
 
 	time.sleep(1)
+
+FileMain("Daily scheduling stopped")
