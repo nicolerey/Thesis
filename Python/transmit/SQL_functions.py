@@ -64,6 +64,8 @@ def SelectDataFromDB(SQL_argument, cursor, SQL_type):
 		# add where clause to statement
 		sql = sql+" where "+SQL_argument[2]
 
+	print sql
+
 	try:
 		# execute query
 		cursor.execute(sql)

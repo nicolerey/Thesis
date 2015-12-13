@@ -16,7 +16,9 @@ def SetDailySchedule():
 	date = datetime.datetime.now()
 	date = date.strftime("%Y-%m-%d")
 
-	sql_args = ["room_schedules_start_time, room_schedules_end_time", "room_schedules", "room_schedules_date={}".format(date)]
+	print date
+
+	sql_args = ["room_schedules_start_time, room_schedules_end_time", "room_schedules", "room_schedules_date='{}'".format(date)]
 
 	room_schedules_result = SQLMain(sql_args, 1)
 
