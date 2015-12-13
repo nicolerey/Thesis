@@ -1,3 +1,0 @@
-install pip for python2
-download "schedule" from https://github.com/dbader/schedule
-run "sudo pip2 install schedule" in directory
