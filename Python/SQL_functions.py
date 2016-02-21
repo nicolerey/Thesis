@@ -107,7 +107,7 @@ def InsertUpdateDeleteToDB(SQL_argument, cursor, db, SQL_type):
 			# commit query changes to DB
 			db.commit()
 
-			rtn = True
+			rtn = sql_query_type+" to DB a success"
 		except:
 			# revert changes to DB
 			db.rollback()

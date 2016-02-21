@@ -42,8 +42,6 @@ def SendStatus(rooms_id):
 	# send frame to serial
 	#serial.write(formatted_frame)
 
-	return
-
 # check whether function call from change_status_on_schedule or php file
 if len(sys.argv) == 2:
 	SendStatus(sys.argv[1])

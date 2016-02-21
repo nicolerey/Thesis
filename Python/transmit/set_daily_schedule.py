@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import schedule
 import datetime
 import os
