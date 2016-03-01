@@ -1,0 +1,266 @@
+!SESSION 2016-02-26 17:28:45.742 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-26 17:29:01.372
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-02-26 17:29:13.526
+!MESSAGE Error while downloading Firmware Library: Timeout while connecting to the server.
+The following system properties can be used to adjust the connect and read timeouts (in ms):
+   com.digi.xctung.fw.connectionTimeout=<default:10000>
+   com.digi.xctung.fw.readTimeout=<default:60000>
+
+
+!ENTRY org.eclipse.osgi 2 1 2016-02-26 17:29:34.487
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.repository 4 1002 2016-02-26 17:29:34.492
+!MESSAGE Communication with repository at ftp://ftp1.digi.com/support/XCTU-NG/repository/ failed.
+!STACK 0
+java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SESSION 2016-02-26 22:34:32.494 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-26 22:34:48.848
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY org.eclipse.equinox.p2.repository 2 0 2016-02-26 22:35:05.033
+!MESSAGE Server returned lastModified <= 0 for ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!SESSION 2016-02-27 04:18:21.382 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-27 04:18:39.238
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY org.eclipse.equinox.p2.repository 2 0 2016-02-27 04:18:55.349
+!MESSAGE Server returned lastModified <= 0 for ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!SESSION 2016-02-27 15:11:08.590 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-27 15:11:24.367
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-02-27 15:11:41.445
+!MESSAGE Error while downloading Firmware Library: Timeout while connecting to the server.
+The following system properties can be used to adjust the connect and read timeouts (in ms):
+   com.digi.xctung.fw.connectionTimeout=<default:10000>
+   com.digi.xctung.fw.readTimeout=<default:60000>
+
+
+!ENTRY org.eclipse.osgi 2 1 2016-02-27 15:12:01.600
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.repository 4 1002 2016-02-27 15:12:01.604
+!MESSAGE Communication with repository at ftp://ftp1.digi.com/support/XCTU-NG/repository/ failed.
+!STACK 0
+java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SESSION 2016-02-27 17:47:11.988 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-27 17:47:18.406
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-02-27 17:47:24.697
+!MESSAGE Error while downloading Firmware Library: The server name or address (ftp1.digi.com) could not be resolved
+
+!ENTRY org.eclipse.osgi 2 1 2016-02-27 17:47:24.743
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.transport.ecf 4 1006 2016-02-27 17:47:24.748
+!MESSAGE Unknown Host: ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!STACK 0
+java.net.UnknownHostException: ftp1.digi.com
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SESSION 2016-02-29 12:13:30.509 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-29 12:13:47.814
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-02-29 12:14:00.143
+!MESSAGE Error while downloading Firmware Library: Timeout while connecting to the server.
+The following system properties can be used to adjust the connect and read timeouts (in ms):
+   com.digi.xctung.fw.connectionTimeout=<default:10000>
+   com.digi.xctung.fw.readTimeout=<default:60000>
+
+
+!ENTRY org.eclipse.osgi 2 1 2016-02-29 12:14:20.458
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.repository 4 1002 2016-02-29 12:14:20.463
+!MESSAGE Communication with repository at ftp://ftp1.digi.com/support/XCTU-NG/repository/ failed.
+!STACK 0
+java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SESSION 2016-02-29 21:38:20.089 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-02-29 21:38:36.395
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY org.eclipse.equinox.p2.repository 2 0 2016-02-29 21:38:50.405
+!MESSAGE Server returned lastModified <= 0 for ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!SESSION 2016-03-01 11:00:59.467 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-03-01 11:01:16.014
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-03-01 11:01:28.153
+!MESSAGE Error while downloading Firmware Library: Timeout while connecting to the server.
+The following system properties can be used to adjust the connect and read timeouts (in ms):
+   com.digi.xctung.fw.connectionTimeout=<default:10000>
+   com.digi.xctung.fw.readTimeout=<default:60000>
+
+
+!ENTRY org.eclipse.osgi 2 1 2016-03-01 11:01:48.866
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.repository 4 1002 2016-03-01 11:01:48.871
+!MESSAGE Communication with repository at ftp://ftp1.digi.com/support/XCTU-NG/repository/ failed.
+!STACK 0
+java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SESSION 2016-03-01 14:51:31.174 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-03-01 14:51:50.008
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-03-01 14:52:04.338
+!MESSAGE Error while downloading Firmware Library: Timeout while connecting to the server.
+The following system properties can be used to adjust the connect and read timeouts (in ms):
+   com.digi.xctung.fw.connectionTimeout=<default:10000>
+   com.digi.xctung.fw.readTimeout=<default:60000>
+
+
+!ENTRY org.eclipse.osgi 2 1 2016-03-01 14:52:24.709
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.repository 4 1002 2016-03-01 14:52:24.711
+!MESSAGE Communication with repository at ftp://ftp1.digi.com/support/XCTU-NG/repository/ failed.
+!STACK 0
+java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
