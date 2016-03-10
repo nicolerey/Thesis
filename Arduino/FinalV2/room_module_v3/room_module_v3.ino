@@ -15,6 +15,7 @@ void SyncDateTime(int xbee_data_int[]);
 void ChangeRoomDevicePorts(int xbee_data_int[]);;
 void ChangeRoomDeviceStatus(int xbee_data_int[]);
 void StartTask();
+void SchedulingMode(int xbee_data_int[]);
 
 Task tsk1(50, TASK_FOREVER, &CheckXBeeBuffer);
 Task tsk2(50, TASK_FOREVER, &CheckSerialBuffer);
@@ -126,7 +127,7 @@ void ProcessSerialData(){
   if(EEPROM.read(13) && EEPROM.read(12))
     EEPROM.update(10, 1);
 
-  if(EEPROM.read(10) && EEPROM.read(11)){
+  if(EEPROM.read(10)){
     if(!datetime_sync_flag)
       tsk3.enable();
   }
@@ -139,8 +140,6 @@ void CheckXBeeBuffer(){
     xbee_data_queue[xbee_tail++] = (unsigned char)Serial1.read();
     Alarm.delay(5);
   }
-      Serial1.write(0x0A);
-      Alarm.delay(50);
 
   if(xbee_tail){
     if(xbee_data_queue[0]==0x2E){
@@ -172,6 +171,8 @@ void PerformXBeeOperation(int xbee_data_int[]){
     CheckRoomDeviceStatus();
   else if(xbee_data_int[0]==14 && datetime_sync_flag)
     tsk5.disable();
+  else if(xbee_data_int[0]==6 && datetime_sync_flag && !EEPROM.read(25))
+    SchedulingMode(xbee_data_int);
 }
 
 void RequestDateTimeSync(){
@@ -246,8 +247,8 @@ void ChangeRoomDeviceStatus(int xbee_data_int[]){
       }
     }
 
-    Alarm.timerOnce(60-second(), StartTask);
     tsk4.enable();
+    tsk5.enable();
 
     unsigned char return_data[EEPROM.read(1)+2];
     return_data[0] = 0x0C;
@@ -296,4 +297,31 @@ void StartTask(){
   Alarm.delay(50);
   
   tsk4.enable();
+}
+
+void SchedulingMode(int xbee_data_int[]){
+  if(xbee_data_int[1]==1){
+    digitalWrite(EEPROM.read(0), HIGH);
+    EEPROM.update(35, 1);
+  }
+  else{
+    digitalWrite(EEPROM.read(0), LOW);
+    EEPROM.update(35, 0);
+  }
+
+  for(int x=0; x<xbee_data_int[2]; x++){
+    if(xbee_data_int[3+x]==1){
+      digitalWrite(EEPROM.read(2+x), HIGH);
+      EEPROM.update(36+x, 1);
+    }
+    else{
+      digitalWrite(EEPROM.read(2+x), LOW);
+      EEPROM.update(36+x, 0);
+    }
+  }
+
+  tsk5.enable();
+  
+  Serial1.write(0x0F);
+  Alarm.delay(50);
 }

@@ -16,7 +16,7 @@ int xbee_tail = 0;
 int datetime_sync_flag = 0;
 
 void setup(){
-  Serial1.begin(9600);
+  Serial.begin(9600);
 
   runner.addTask(tsk1);
 
@@ -30,8 +30,8 @@ void loop(){
 }
 
 void CheckXBeeBuffer(){
-  while(Serial1.available()>0){
-    xbee_data_queue[xbee_tail++] = (unsigned char)Serial1.read();
+  while(Serial.available()>0){
+    xbee_data_queue[xbee_tail++] = (unsigned char)Serial.read();
     delay(5);
   }
 

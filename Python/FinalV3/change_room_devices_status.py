@@ -8,7 +8,7 @@ import datetime
 
 sql = SQLClass()
 
-xbee = XBee_Threaded.XBee("/dev/ttyUSB1")
+xbee = XBee_Threaded.XBee("/dev/ttyUSB0")
 
 def ChangeRoomDevicesStatus(rooms_id):
 	sql.GetWhereQuery("rooms", "rooms_id={}".format(rooms_id))
@@ -50,6 +50,9 @@ def ChangeRoomDevicesStatus(rooms_id):
 		room_devices_status_data = "2E {} {}".format(ConvertIntToHex(len(bytearray.fromhex(room_devices_status_data))), room_devices_status_data)
 
 		xbee.Send(bytearray.fromhex(room_devices_status_data), rooms_result[0])
+
+		while True:
+			xbee.Receive()
 
 	xbee.shutdown()
 

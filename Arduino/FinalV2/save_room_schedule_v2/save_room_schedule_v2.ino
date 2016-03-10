@@ -18,9 +18,6 @@ int xbee_tail = 0;
 
 File file_ptr;
 
-char schedule_data[220];
-int schedule_data_tail = 0;
-
 void setup(){
   Serial1.begin(9600);
 
@@ -79,21 +76,19 @@ void CheckXBeeBuffer(){
 }
 
 void SaveRoomSchedule(int xbee_data_int[], char sent_schedule_data[], int sent_schedule_length){
-  for(int x=0; x<sent_schedule_length; x++)
-    schedule_data[schedule_data_tail++] = sent_schedule_data[x];
 
   Serial1.write(0x0F);
   delay(50);
 
   String day_abr[7] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
-  String file_path = day_abr[xbee_data_int[3]]+"/sched"+String(xbee_data_int[4])+".txt";
+  String file_path = day_abr[xbee_data_int[1]]+"/sched"+String(xbee_data_int[4])+".txt";
 
   if(SD.exists(file_path))
     SD.remove(file_path);
   
   file_ptr = SD.open(file_path, FILE_WRITE);
   if(file_ptr){
-    file_ptr.write(schedule_data, schedule_data_tail);
+    file_ptr.write(sent_schedule_data, sent_schedule_length);
     file_ptr.close();
   }
 

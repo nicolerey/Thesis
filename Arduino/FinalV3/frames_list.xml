@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <frames_list>
+    <frame name="sync date time">
+      <payload>7E00181000000000000000FFFFFFFC00002E08030A2400090307E09C</payload>
+    </frame>
+    <frame name="change room device ports">
+      <payload>7E00171000000000000000FFFFFFFC00002E070909040807060591</payload>
+    </frame>
+    <frame name="change room device status">
+      <payload>7E001D1000000000000000FFFFFFFC00002E0D01030807E00A3001040100010087</payload>
+    </frame>
+    <frame name="save room schedule 1">
+      <payload>7E00171000000000000000FFFFFFFC00002E07060401027D0280B5</payload>
+    </frame>
+    <frame name="save room schedule 2">
+      <payload>7E00171000000000000000FFFFFFFC00002E07060402027D0280B4</payload>
+    </frame>
+    <frame name="save room schedule 3">
+      <payload>7E00171000000000000000FFFFFFFC00002E07060403027D0280B3</payload>
+    </frame>
+  </frames_list>
+</data>

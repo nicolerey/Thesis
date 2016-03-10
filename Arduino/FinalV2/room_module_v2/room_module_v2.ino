@@ -2,25 +2,30 @@
 #include <TaskScheduler.h>
 #include <EEPROM.h>
 #include <TimeAlarms.h>
+#include <SPI.h>
+#include <SD.h>
 
 void CheckXBeeBuffer();
 void CheckSerialBuffer();
 void RequestDateTimeSync();
 void CheckWhileInManualMode();
 void CheckRoomDeviceStatus();
+void CheckRoomSchedule();
 
 void ProcessSerialData();
 void PerformXBeeOperation(int xbee_data_int[]);
 void SyncDateTime(int xbee_data_int[]);
 void ChangeRoomDevicePorts(int xbee_data_int[]);;
 void ChangeRoomDeviceStatus(int xbee_data_int[]);
-void StartTask();
+void StartTask4();
+void SaveRoomSchedule(int xbee_data_int[], char sent_schedule_data[], int sent_schedule_length);
 
 Task tsk1(50, TASK_FOREVER, &CheckXBeeBuffer);
 Task tsk2(50, TASK_FOREVER, &CheckSerialBuffer);
 Task tsk3(500, TASK_FOREVER, &RequestDateTimeSync);
 Task tsk4(60000, TASK_FOREVER, &CheckWhileInManualMode);
 Task tsk5(500, TASK_FOREVER, &CheckRoomDeviceStatus);
+Task tsk6(60000, TASK_FOREVER, &CheckRoomSchedule);
 
 Scheduler runner;
 
@@ -32,6 +37,8 @@ int xbee_tail = 0;
 int datetime_sync_flag = 0;
 int at_mode_flag = 0;
 
+File file_ptr;
+
 void setup(){
   Serial.begin(9600);
   Serial1.begin(9600);
@@ -39,10 +46,13 @@ void setup(){
   runner.init();
 
   pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
   pinMode(18, OUTPUT);
   pinMode(19, OUTPUT);
   pinMode(20, OUTPUT);
   pinMode(21, OUTPUT);
+
+  digitalWrite(10, HIGH);
 
   runner.addTask(tsk1);
   runner.addTask(tsk2);
@@ -53,9 +63,18 @@ void setup(){
   tsk1.enable();
   tsk2.enable();
 
+  if(!SD.begin(10))
+    return;
+
+  file_ptr = SD.open("/");
+
+  EEPROM.update(11, 1);
+
   if(EEPROM.read(10)){
     if(!datetime_sync_flag)
       tsk3.enable();
+    else
+      tsk6.enable();
   }
 }
 
@@ -126,9 +145,11 @@ void ProcessSerialData(){
   if(EEPROM.read(13) && EEPROM.read(12))
     EEPROM.update(10, 1);
 
-  if(EEPROM.read(10) && EEPROM.read(11)){
+  if(EEPROM.read(10)){
     if(!datetime_sync_flag)
       tsk3.enable();
+    else
+      tsk6.enable();
   }
 
   serial_data_queue = "";
@@ -139,8 +160,6 @@ void CheckXBeeBuffer(){
     xbee_data_queue[xbee_tail++] = (unsigned char)Serial1.read();
     Alarm.delay(5);
   }
-      Serial1.write(0x0A);
-      Alarm.delay(50);
 
   if(xbee_tail){
     if(xbee_data_queue[0]==0x2E){
@@ -150,7 +169,15 @@ void CheckXBeeBuffer(){
       for(int x=0; x<data_length; x++)
         xbee_data_int[x] = (int)strtol(String(xbee_data_queue[2+x]).c_str(), NULL, 0);
 
-      PerformXBeeOperation(xbee_data_int);
+      if(xbee_data_int[0]==6){
+        char sent_schedule_data[data_length-3];
+        for(int x=0; x<(data_length-3); x++)
+          sent_schedule_data[x] = (char)xbee_data_queue[5+x];
+
+        SaveRoomSchedule(xbee_data_int, sent_schedule_data, data_length-3);
+      }
+      else
+        PerformXBeeOperation(xbee_data_int);
 
       for(int x=0, y=data_length+1; x<(xbee_tail - (data_length+2)); x++, y++)
         xbee_data_queue[x] = xbee_data_queue[y];
@@ -192,9 +219,6 @@ void SyncDateTime(int xbee_data_int[]){
 
   tsk3.disable();
   runner.deleteTask(tsk3);
-
-  Serial1.print(String(hour())+" "+String(minute())+" "+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
-  Alarm.delay(50);
 }
 
 void ChangeRoomDevicePorts(int xbee_data_int[]){
@@ -246,8 +270,9 @@ void ChangeRoomDeviceStatus(int xbee_data_int[]){
       }
     }
 
-    Alarm.timerOnce(60-second(), StartTask);
-    tsk4.enable();
+    Alarm.timerOnce(60-second(), StartTask4);
+    tsk5.enable();
+    tsk6.disable();
 
     unsigned char return_data[EEPROM.read(1)+2];
     return_data[0] = 0x0C;
@@ -278,6 +303,7 @@ void CheckWhileInManualMode(){
 
     tsk4.disable();
     tsk5.enable();
+    tsk6.enable();
   }
 }
 
@@ -291,9 +317,61 @@ void CheckRoomDeviceStatus(){
   Alarm.delay(50);
 }
 
-void StartTask(){
-  Serial1.print(String(hour())+" "+String(minute())+" "+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
-  Alarm.delay(50);
-  
+void StartTask4(){  
   tsk4.enable();
+}
+
+void SaveRoomSchedule(int xbee_data_int[], char sent_schedule_data[], int sent_schedule_length){
+
+  Serial1.write(0x0F);
+  delay(50);
+
+  String day_abr[7] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
+  String file_path = day_abr[xbee_data_int[1]]+"/sched"+String(xbee_data_int[4])+".txt";
+
+  if(SD.exists(file_path))
+    SD.remove(file_path);
+  
+  file_ptr = SD.open(file_path, FILE_WRITE);
+  if(file_ptr){
+    file_ptr.write(sent_schedule_data, sent_schedule_length);
+    file_ptr.close();
+  }
+}
+
+void CheckRoomSchedule(){
+  String day_abr[7] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
+
+  file_ptr = SD.open(day_abr[weekday()-1]+"/");    
+  while(true){
+    File entry = file_ptr.openNextFile();
+    if(!entry)
+      break;
+
+    int file_data_int[EEPROM.read(1)+5];
+    for(int x=0; entry.available(); x++)
+      file_data_int[x] = (int)strtol(String((unsigned char)entry.read()).c_str(), NULL, 0);
+
+    int time_start_in_file = (file_data_int[EEPROM.read(1)+1] << 8) + file_data_int[EEPROM.read(1)+2];
+    if(time_start_in_file==((hour()*60)+minute())){
+      digitalWrite(EEPROM.read(0), HIGH);
+      EEPROM.update(35, 1);
+
+      for(int x=0; x<EEPROM.read(1); x++){
+        digitalWrite(EEPROM.read(2+x), HIGH);
+        EEPROM.update(36+x, 1);
+      }
+    }
+
+    int time_end_in_file = (file_data_int[EEPROM.read(1)+3] << 8) + file_data_int[EEPROM.read(1)+4];
+    if(time_end_in_file==((hour()*60)+minute())){
+      digitalWrite(EEPROM.read(0), LOW);
+      EEPROM.update(35, 0);
+
+      for(int x=0; x<EEPROM.read(1); x++){
+        digitalWrite(EEPROM.read(2+x), LOW);
+        EEPROM.update(36+x, 0);
+      }
+    }
+  }
 }

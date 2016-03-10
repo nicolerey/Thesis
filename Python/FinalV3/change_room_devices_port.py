@@ -7,7 +7,7 @@ import sys
 
 sql = SQLClass()
 
-xbee = XBee_Threaded.XBee("/dev/ttyUSB1")
+xbee = XBee_Threaded.XBee("/dev/ttyUSB0")
 
 def ChangeRoomDevicesPort(rooms_id):
 	sql.GetWhereQuery("rooms", "rooms_id={}".format(rooms_id))
