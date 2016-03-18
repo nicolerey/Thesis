@@ -72,7 +72,7 @@ void ProcessSerialData(){
     for(int x=0; x<EEPROM.read(1)+2; x++)
       EEPROM.update(x, 0);
 
-    for(int x=0; x<4; x++)
+    for(int x=0; x<8; x++)
       EEPROM.update(10+x, 0);
 
     for(int x=0; x<7; x++)

@@ -109,6 +109,8 @@ void BLEFunction(){
     conn = checkifconnected();
     if (!conn) {                                                            
       if (readyRole1) {
+        Serial2.print("AT");
+        delay(50);
         Serial2.print("AT+ROLE1");
         readyRole1 = 0;                                                     
         ATROLE1=1;
@@ -180,12 +182,13 @@ int checkifdisconnected() {
 void CheckBLEBuffer() {
   int temp;  
   while (Serial2.available()) {
-    delay(50);
+    //delay(50);
     temp = Serial2.read();
     RXdata += (char)temp;
   }
   
-  RXdata.toCharArray(buff, 500);  
+  RXdata.toCharArray(buff, 500); 
+  //Serial.print(RXdata); 
   if(strstr(buff, "DISCE") != NULL){
     if (strstr(buff, "20C38FF67F85") != NULL){      
       if(!flagonPowerstatus){

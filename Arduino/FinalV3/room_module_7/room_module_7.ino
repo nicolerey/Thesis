@@ -6,11 +6,13 @@
 
 /********* TASK Functions **********/
 void CheckXBeeBuffer();
+void CheckSerialBuffer();
 void RequestDateTimeSync();
 void CheckScheduleInManual();
 void CheckWhileInAuto();
 void PrintDateTime();
 void TurnOnRoomDevicePorts();
+void CalculateCurrent();
 
 /* BLE */
 void CheckBLEBuffer();
@@ -25,6 +27,10 @@ void ChangeRoomDevicePorts(int xbee_data_int[], int xbee_data_length);
 void ChangeRoomDeviceStatus(int xbee_data_int[], int xbee_data_length);
 void TurnOffRoomDevicePorts();
 void SaveRoomSchedule(int xbee_data_int[], int xbee_data_length);
+float getVPP();
+void SendConsumption();
+void SendRoomDeviceStatus();
+void ProcessSerialData();
 
 /* BLE */
 int checkifdisconnected();
@@ -35,27 +41,39 @@ void clearBuffer();
 
 /***************** TASKS ******************/
 Task tsk1(50, TASK_FOREVER, &CheckXBeeBuffer);
-Task tsk3(1000, TASK_FOREVER, &RequestDateTimeSync);
+Task tsk2(50, TASK_FOREVER, &CheckSerialBuffer);
+Task tsk3(3000, TASK_FOREVER, &RequestDateTimeSync);
 Task tsk4(60000, TASK_FOREVER, &CheckScheduleInManual);
 Task tsk5(60000, TASK_FOREVER, &CheckWhileInAuto);
-Task tem(1000, TASK_FOREVER, &PrintDateTime);
 Task tsk6(500, TASK_FOREVER, &TurnOnRoomDevicePorts);
+Task tsk7(1000, TASK_FOREVER, &CalculateCurrent);
+Task tem(1000, TASK_FOREVER, &PrintDateTime);
 
 /* BLE */
-Task ble_tsk1(50, TASK_FOREVER, &CheckBLEBuffer);
+Task ble_tsk1(5, TASK_FOREVER, &CheckBLEBuffer);
 Task ble_tsk2(500, TASK_FOREVER, &BLEFunction);
 //Task ble_tsk3(3000, 1, &TurnOffDelay);
 /******************************************/
 
 /******* GLOBALS ******/
 String xbee_data;
+String serial_data_queue;
 
 Scheduler runner;
 
+int at_mode_flag = 0;
 int datetime_sync_flag = 0;
 int set_room_device_status[5];
 
 File file_ptr;
+
+const int ADCread = A7;
+int ACSSensitivity = 100; // use 100 for 20A Module and 66 for 30A Module
+double VoltageP2P = 0;
+double Vrms = 0;
+double Irms = 0;
+
+double current_consump = 0;
 
 /* BLE */
 String RXdata;
@@ -63,7 +81,10 @@ char buff[500];
 int data, x, conn, con_stat, requestcon, DISCE, ATROLE1, readyRole1, delay3s,flagonPowerstatus,flagoffPowerstatus,notdiscovered;
 long previousTime = 0;
 
-int ble_status = 0;
+int ble_status = 1;
+
+int status_value = 0;
+int prev_status_value = 0;
 /**********************/
 
 void setup(){
@@ -90,17 +111,21 @@ void setup(){
   runner.init();
 
   runner.addTask(tsk1);
+  runner.addTask(tsk2);
   runner.addTask(tsk3);
   runner.addTask(tsk4);
   runner.addTask(tsk5);
   runner.addTask(tsk6);
+  runner.addTask(tsk7);
   runner.addTask(tem);
   runner.addTask(ble_tsk1);
   runner.addTask(ble_tsk2);
 
   tsk1.enable();
-  tsk3.enable();
+  tsk2.enable();
+
   tem.enable();
+
   ble_tsk1.enable();
   ble_tsk2.enable();
 
@@ -111,6 +136,20 @@ void setup(){
     return;
 
   clearBuffer();
+
+  memcpy(set_room_device_status, 0, 5);
+
+  if(EEPROM.read(10)!=0){
+    if(!datetime_sync_flag)
+      tsk3.enable();
+  }
+
+  SendRoomDeviceStatus();
+
+  if(EEPROM.read(25))
+    tsk4.enable();
+  else
+    tsk5.enable();
 }
 
 void loop(){
@@ -141,6 +180,16 @@ void CheckXBeeBuffer(){
   }
 }
 
+void CheckSerialBuffer(){
+  while(Serial.available()>0){
+    serial_data_queue += (char)Serial.read();
+    delay(5);
+  }
+
+  if(serial_data_queue.length()!=0)
+    ProcessSerialData();
+}
+
 void RequestDateTimeSync(){
   Serial1.write(0x02);
 }
@@ -149,7 +198,7 @@ void CheckScheduleInManual(){
   int time_now_sum = month()+day()+year()+(hour() * 60)+minute();
   int sent_time_sum = EEPROM.read(26)+EEPROM.read(27)+((EEPROM.read(28) << 8) + EEPROM.read(29))+(EEPROM.read(30)*60)+EEPROM.read(31);
 
-  if(time_now_sum==sent_time_sum){
+  if(time_now_sum>=sent_time_sum){
     EEPROM.update(25, 0);
 
     TurnOffRoomDevicePorts();
@@ -185,14 +234,42 @@ void CheckWhileInAuto(){
 }
 
 void TurnOnRoomDevicePorts(){
+  for(int x=0; x<EEPROM.read(1)+1; x++)
+    status_value ^= (-EEPROM.read(35+x) ^ status_value) & (1 << x);
+
+  if(status_value!=prev_status_value){
+    SendRoomDeviceStatus();
+    SendConsumption();
+  }
+
+  prev_status_value = status_value;
+
   if(ble_status){
-    digitalWrite(EEPROM.read(0), set_room_device_status[0]);
-    EEPROM.update(35, set_room_device_status[0]);
-  
-    for(int x=0; x<EEPROM.read(1); x++){
-      digitalWrite(EEPROM.read(2+x), set_room_device_status[1+x]);
-      EEPROM.update(36+x, set_room_device_status[1+x]);
-    }
+    /*int status_flag = 0;
+    for(int x=0; x<EEPROM.read(1)+1; x++){
+      if(set_room_device_status[x]){
+        status_flag = 1;
+        break;
+      }
+    }*/
+
+    Serial.println("status values:");
+    for(int x=0; x<EEPROM.read(1)+1; x++)
+      Serial.println(set_room_device_status[x]);
+
+    /*if(status_flag){
+      tsk7.enableIfNot();*/
+
+      digitalWrite(EEPROM.read(0), set_room_device_status[0]);
+      EEPROM.update(35, set_room_device_status[0]);
+    
+      for(int x=0; x<EEPROM.read(1); x++){
+        digitalWrite(EEPROM.read(2+x), set_room_device_status[1+x]);
+        EEPROM.update(36+x, set_room_device_status[1+x]);
+      }
+    /*}
+    else
+      tsk7.disable();*/
   }
   else
     TurnOffRoomDevicePorts();
@@ -210,7 +287,6 @@ void BLEFunction(){
       conn = checkifdisconnected(); 
       if (conn) {
         if (RXdata.equals("12345")) {
-          digitalWrite(18, HIGH);
           Serial2.print(1);
           delay(5);
           con_stat = 1;
@@ -227,8 +303,8 @@ void BLEFunction(){
       conn = checkifdisconnected();
       if (conn) {
         if (RXdata.equals("0")){
-          if(ble_status)
-            ble_status = 0;
+          /*if(ble_status)
+            ble_status = 0;*/
         }
         else if (RXdata.equals("1")){
           if(!ble_status)
@@ -250,8 +326,6 @@ void BLEFunction(){
     conn = checkifconnected();
     if (!conn) {                                                            
       if (readyRole1) {
-        Serial2.print("AT");
-        delay(50);
         Serial2.print("AT+ROLE1");
         readyRole1 = 0;                                                     
         ATROLE1=1;
@@ -281,30 +355,44 @@ void BLEFunction(){
 void CheckBLEBuffer() {
   int temp;  
   while (Serial2.available()) {
-    delay(50);
     temp = Serial2.read();
     RXdata += (char)temp;
   }
   
   RXdata.toCharArray(buff, 500);  
   if(strstr(buff, "DISCE") != NULL){
-    if (strstr(buff, "20C38FF67F85") != NULL){      
+    if (strstr(buff, "74DAEAB326BC") != NULL){      
       if(!flagonPowerstatus){
         flagonPowerstatus=1;
         flagoffPowerstatus=0;    
-        if(!ble_status)
+        if(!ble_status){
           ble_status = 1;
+
+          TurnOnRoomDevicePorts();
+        }
       }
     }   
     else{         
       if(!flagoffPowerstatus){
         flagoffPowerstatus=1;
         flagonPowerstatus=0;   
-        if(ble_status)
+        /*if(ble_status){
           ble_status = 0;
+
+          TurnOffRoomDevicePorts();
+        }*/ 
       }             
     } 
   }         
+}
+
+void CalculateCurrent(){
+  VoltageP2P = getVPP();
+  Vrms = (VoltageP2P/2.0) *0.7071; 
+  Irms = ((Vrms * 1000)/ACSSensitivity)-.11;
+  if(Irms<0)Irms=0.0;
+
+  current_consump += Irms;
 }
 
 void PerformXBeeOperation(int xbee_data_int[], int xbee_data_length){
@@ -314,7 +402,7 @@ void PerformXBeeOperation(int xbee_data_int[], int xbee_data_length){
     ChangeRoomDevicePorts(xbee_data_int, xbee_data_length);
   else if(xbee_data_int[0]==1 && datetime_sync_flag)
     ChangeRoomDeviceStatus(xbee_data_int, xbee_data_length);
-  else if(xbee_data_int[0]==6 && datetime_sync_flag)
+  else if((xbee_data_int[0]==6 || xbee_data_int[0]==10) && datetime_sync_flag)
     SaveRoomSchedule(xbee_data_int, xbee_data_length);
   else if(xbee_data_int[0]==14)
     digitalWrite(5, HIGH);
@@ -364,8 +452,13 @@ void ChangeRoomDevicePorts(int xbee_data_int[], int xbee_data_length){
 void ChangeRoomDeviceStatus(int xbee_data_int[], int xbee_data_length){
   int time_now_sum = month()+day()+year()+(hour() * 60)+minute();
   int sent_time_sum = xbee_data_int[1]+xbee_data_int[2]+((xbee_data_int[3] << 8) + xbee_data_int[4])+((xbee_data_int[5]*60)+xbee_data_int[6]);
+    /*Serial1.println("manual");
+    Serial1.println(String(time_now_sum)+"--"+String(sent_time_sum));*/
+  /*Serial1.println(String(hour())+":"+String(minute())+":"+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
+  Serial1.println(String(xbee_data_int[5])+":"+String(xbee_data_int[6])+" "+String(xbee_data_int[2])+" "+String(xbee_data_int[1])+" "+String(((xbee_data_int[3] << 8) + xbee_data_int[4])));*/
 
   if(time_now_sum<sent_time_sum){
+    /*Serial1.println(String(time_now_sum)+"--"+String(sent_time_sum));*/
     EEPROM.update(25, 1);
     EEPROM.update(26, xbee_data_int[1]);
     EEPROM.update(27, xbee_data_int[2]);
@@ -409,13 +502,15 @@ void SaveRoomSchedule(int xbee_data_int[], int xbee_data_length){
     file_data[x] = 0;
 
   if(SD.exists(file_path)){
-    file_ptr = SD.open(file_path, FILE_READ);
-    if(file_ptr){
-      int x=0;
-      while(file_ptr.available())
-        file_data[x++] = file_ptr.read();
+    if(xbee_data_int[0]==6){
+      file_ptr = SD.open(file_path, FILE_READ);
+      if(file_ptr){
+        int x=0;
+        while(file_ptr.available())
+          file_data[x++] = file_ptr.read();
 
-      file_ptr.close();
+        file_ptr.close();
+      }
     }
 
     SD.remove(file_path);
@@ -457,8 +552,11 @@ int checkifdisconnected() {
     con_stat = 0;
     readyRole1=1;
 
-    if(ble_status)
+    if(ble_status){
       ble_status = 0;
+
+      TurnOffRoomDevicePorts();
+    }
   }
   else requestcon = 1;
   delay(100);
@@ -469,4 +567,117 @@ void clearBuffer() {
   while (Serial2.available()) {
     Serial2.read();
   }
+}
+
+float getVPP()
+{
+  float result;  
+  int AnalogRead;             
+  int Vplus = 512;        
+  int Vminus = 512;       
+  
+  unsigned long start_time = millis();
+  while((millis()-start_time) < 1000) //sample for 1 Sec
+  {
+    AnalogRead = analogRead(ADCread);
+
+    if (AnalogRead > Vplus) 
+    {
+      Vplus = AnalogRead;
+    }
+    if (AnalogRead < Vminus) 
+    {
+      Vminus = AnalogRead;
+    }
+  }
+  result = ((Vplus - Vminus) * 5)/1024.0;
+  return result;
+}
+
+void SendConsumption(){
+  byte consumption_data[sizeof(current_consump)+3];
+  consumption_data[0] = 0x05;
+  consumption_data[1] = (byte)EEPROM.read(12);
+  consumption_data[2] = sizeof(current_consump);
+
+  byte data[sizeof(current_consump)];
+  (String(current_consump)).getBytes(data, sizeof(current_consump));
+
+  for(int x=0; x<sizeof(data); x++)
+    consumption_data[3+x] = data[x];
+
+  Serial1.write(consumption_data, sizeof(consumption_data));
+  delay(50);
+
+  current_consump = 0;
+}
+
+void SendRoomDeviceStatus(){
+  unsigned char device_status[EEPROM.read(1)+3];
+  device_status[0] = 0x07;
+  device_status[1] = EEPROM.read(12);
+  device_status[2] = EEPROM.read(35);
+  for(int x=0; x<EEPROM.read(1); x++)
+    device_status[x+3] = EEPROM.read(36+x);
+
+  Serial1.write(device_status, EEPROM.read(1)+3);
+  delay(50);
+}
+
+void ProcessSerialData(){
+  if(serial_data_queue.equals("***")){
+    at_mode_flag = 1;
+    Serial.println("Entered AT mode...");
+  }
+  else if(!serial_data_queue.indexOf("ATID") && at_mode_flag){
+    Serial1.print("+++");
+    delay(1000);
+    Serial1.println(serial_data_queue);
+    Serial1.println("ATWR");
+    Serial1.println("ATCN");
+
+    int pan_id = (serial_data_queue.substring(serial_data_queue.indexOf(" ")+1)).toInt();
+    EEPROM.update(13, pan_id);
+
+    Serial.println("XBee configuration saved.");
+
+    at_mode_flag = 0;
+  }
+  else if(!serial_data_queue.indexOf("ID") && at_mode_flag){
+    int room_id = (serial_data_queue.substring(serial_data_queue.indexOf(" ")+1)).toInt();
+    EEPROM.update(12, room_id);
+
+    Serial.println("Room ID changed to "+serial_data_queue.substring(serial_data_queue.indexOf(" ")+1));
+
+    at_mode_flag = 0;
+  }
+  else if(!serial_data_queue.indexOf("RESET") && at_mode_flag){
+    for(int x=0; x<EEPROM.read(1)+2; x++)
+      EEPROM.update(x, 0);
+
+    for(int x=0; x<8; x++)
+      EEPROM.update(10+x, 0);
+
+    for(int x=0; x<7; x++)
+      EEPROM.update(25+x, 0);
+
+    for(int x=0; x<EEPROM.read(1)+1; x++)
+      EEPROM.update(35+x, 0);
+
+    EEPROM.update(1, 0);
+
+    Serial.println("RESET finished");
+
+    at_mode_flag = 0;
+  }
+
+  if(EEPROM.read(13) && EEPROM.read(12))
+    EEPROM.update(10, 1);
+
+  if(EEPROM.read(10)==1){
+    if(!datetime_sync_flag)
+      tsk3.enable();
+  }
+
+  serial_data_queue = "";
 }
