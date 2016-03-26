@@ -65,6 +65,7 @@ void CheckXBeeBuffer(){
 }
 
 void RequestDateTimeSync(){
+  Serial.println("nicole");
   Serial1.write(0x02);
 }
 

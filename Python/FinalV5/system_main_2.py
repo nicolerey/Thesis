@@ -48,8 +48,16 @@ def ReceiveXBeeData(val):
 		elif msg[14]==7:
 			sql = SQLClass()
 
+			status_update_flag = 0
+
 			sql.UpdateQuery("rooms", [["rooms_status", msg[16]]], "rooms_id={}".format(msg[15]))
 			sql.Commit()
+
+			if msg[16]:
+				sql.InsertQuery("status_logs", "1, CURRENT_TIMESTAMP")
+				sql.Commit()
+
+				status_update_flag = 1
 
 			sql.GetWhereQuery("room_devices", "rooms_id={}".format(msg[15]))
 			sql.SelectColumn("room_devices_id")
@@ -60,7 +68,18 @@ def ReceiveXBeeData(val):
 				sql.UpdateQuery("room_devices", [["rooms_status", msg[17+x]]], "room_devices_id={}".format(device[0]))
 				sql.Commit()
 
+				if not status_update_flag:
+					if msg[17+x]:
+						sql.InsertQuery("status_logs", "1, CURRENT_TIMESTAMP")
+						sql.Commit()
+
+						status_update_flag = 1
+
 				x += 1
+
+			if not status_update_flag:
+				sql.InsertQuery("status_logs", "0, CURRENT_TIMESTAMP")
+				sql.Commit()
 
 			sql.CloseConnection()
 		elif msg[14]==5:
@@ -71,8 +90,6 @@ def ReceiveXBeeData(val):
 			sql.InsertQuery("room_consumptions", "{}, {}, CURRENT_TIMESTAMP".format(msg[15], curr_data))
 			sql.Commit()
 
-			print sql.ReturnQueryStatement()
-
 			sql.CloseConnection()
 
 def PerformTriggerFunctions(val):
@@ -82,23 +99,33 @@ def PerformTriggerFunctions(val):
 	triggers_result = sql.FetchAll()
 
 	for trigger in triggers_result:
-		if trigger[2]==1:
-			ChangeRoomDevicePort(sql, xbee, trigger[1])
-		elif trigger[2]==2:
-			sql.GetWhereQuery("room_schedules", "room_schedules_id={}".format(trigger[1]))
-			sql.SelectColumn("rooms_id")
-			room_schedules_result = sql.FetchOne()
-
-			SendRoomSchedules(sql, xbee, room_schedules_result[0], trigger[1])
-		elif trigger[2]==3:
-			SendRoomSchedules(sql, xbee, trigger[1], False)
-		elif trigger[2]==4:
-			break;
-		elif trigger[2]==5:
-			ChangeRoomDeviceStatus(sql, xbee, trigger[1])
+		trigger_type = trigger[2]
+		trigger_table_id = trigger[1]
 
 		sql.DeleteQuery("triggers", "triggers_id={}".format(trigger[0]))
 		sql.Commit()
+		
+		if trigger_type==1:
+			ChangeRoomDevicePort(sql, xbee, trigger_table_id)
+		elif trigger_type==2:
+			sql.GetWhereQuery("room_schedules", "room_schedules_id={}".format(trigger_table_id))
+			sql.SelectColumn("rooms_id")
+			room_schedules_result = sql.FetchOne()
+
+			SendRoomSchedules(sql, xbee, room_schedules_result[0], trigger_table_id)
+		elif trigger_type==3:
+			SendRoomSchedules(sql, xbee, trigger_table_id, False)
+		elif trigger_type==4:
+			break;
+		elif trigger_type==5:
+			ChangeRoomDeviceStatus(sql, xbee, trigger_table_id)
+		elif trigger_type==6:
+			sql.GetWhereQuery("rooms", "rooms_id={}".format(trigger_table_id))
+			sql.SelectColumn("rooms_address")
+			rooms_result = sql.FetchOne()
+
+			cancel_manual = "2E 01 10"
+			xbee.Send(bytearray.fromhex(cancel_manual), rooms_result[0])
 	sql.CloseConnection()
 
 def ExecuteOperation():

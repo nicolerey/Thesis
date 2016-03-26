@@ -6,13 +6,13 @@
 
 /********* TASK Functions **********/
 void CheckXBeeBuffer();
-void CheckSerialBuffer();
 void RequestDateTimeSync();
 void CheckScheduleInManual();
 void CheckWhileInAuto();
 void PrintDateTime();
 void TurnOnRoomDevicePorts();
 void CalculateCurrent();
+void SendConsumption();
 
 /* BLE */
 void CheckBLEBuffer();
@@ -28,9 +28,7 @@ void ChangeRoomDeviceStatus(int xbee_data_int[], int xbee_data_length);
 void TurnOffRoomDevicePorts();
 void SaveRoomSchedule(int xbee_data_int[], int xbee_data_length);
 float getVPP();
-void SendConsumption();
 void SendRoomDeviceStatus();
-void ProcessSerialData();
 
 /* BLE */
 int checkifdisconnected();
@@ -41,39 +39,45 @@ void clearBuffer();
 
 /***************** TASKS ******************/
 Task tsk1(50, TASK_FOREVER, &CheckXBeeBuffer);
-Task tsk2(50, TASK_FOREVER, &CheckSerialBuffer);
 Task tsk3(3000, TASK_FOREVER, &RequestDateTimeSync);
 Task tsk4(60000, TASK_FOREVER, &CheckScheduleInManual);
 Task tsk5(60000, TASK_FOREVER, &CheckWhileInAuto);
-Task tsk6(500, TASK_FOREVER, &TurnOnRoomDevicePorts);
-Task tsk7(1000, TASK_FOREVER, &CalculateCurrent);
 Task tem(1000, TASK_FOREVER, &PrintDateTime);
+Task tsk6(1000, TASK_FOREVER, &TurnOnRoomDevicePorts);
+Task tsk7(1000, TASK_FOREVER, &CalculateCurrent);
+Task tsk8(3600000, TASK_FOREVER, &SendConsumption);
 
 /* BLE */
-Task ble_tsk1(5, TASK_FOREVER, &CheckBLEBuffer);
+Task ble_tsk1(50, TASK_FOREVER, &CheckBLEBuffer);
 Task ble_tsk2(500, TASK_FOREVER, &BLEFunction);
 //Task ble_tsk3(3000, 1, &TurnOffDelay);
 /******************************************/
 
 /******* GLOBALS ******/
 String xbee_data;
-String serial_data_queue;
 
 Scheduler runner;
 
-int at_mode_flag = 0;
 int datetime_sync_flag = 0;
 int set_room_device_status[5];
 
 File file_ptr;
 
+int status_value = 0;
+int prev_status_value = 0;
+
+/* Consumption */
 const int ADCread = A7;
 int ACSSensitivity = 100; // use 100 for 20A Module and 66 for 30A Module
 double VoltageP2P = 0;
 double Vrms = 0;
 double Irms = 0;
 
-double current_consump = 0;
+double consumption_per_hour = 0;
+
+double prev_current = 0;
+int current_time_count = 0;
+/***************/
 
 /* BLE */
 String RXdata;
@@ -81,10 +85,7 @@ char buff[500];
 int data, x, conn, con_stat, requestcon, DISCE, ATROLE1, readyRole1, delay3s,flagonPowerstatus,flagoffPowerstatus,notdiscovered;
 long previousTime = 0;
 
-int ble_status = 1;
-
-int status_value = 0;
-int prev_status_value = 0;
+int ble_status = 0;
 /**********************/
 
 void setup(){
@@ -108,21 +109,26 @@ void setup(){
   pinMode(6, OUTPUT);
   pinMode(5, OUTPUT);
 
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+
   runner.init();
 
   runner.addTask(tsk1);
-  runner.addTask(tsk2);
   runner.addTask(tsk3);
   runner.addTask(tsk4);
   runner.addTask(tsk5);
   runner.addTask(tsk6);
   runner.addTask(tsk7);
+  runner.addTask(tsk8);
+
   runner.addTask(tem);
+  
   runner.addTask(ble_tsk1);
   runner.addTask(ble_tsk2);
 
   tsk1.enable();
-  tsk2.enable();
 
   tem.enable();
 
@@ -139,18 +145,17 @@ void setup(){
 
   memcpy(set_room_device_status, 0, 5);
 
-  /*if(EEPROM.read(10)!=0){
-    Serial.println(EEPROM.read(10));
-    if(!datetime_sync_flag)*/
-      tsk3.enable();
-  //}
-
-  SendRoomDeviceStatus();
-
   if(EEPROM.read(25))
     tsk4.enable();
   else
     tsk5.enable();
+
+  if(EEPROM.read(10)){
+    if(!datetime_sync_flag)
+      tsk3.enable();
+    else
+      tsk6.enable();
+  }
 }
 
 void loop(){
@@ -181,16 +186,6 @@ void CheckXBeeBuffer(){
   }
 }
 
-void CheckSerialBuffer(){
-  while(Serial.available()>0){
-    serial_data_queue += (char)Serial.read();
-    delay(5);
-  }
-
-  if(serial_data_queue.length()!=0)
-    ProcessSerialData();
-}
-
 void RequestDateTimeSync(){
   Serial1.write(0x02);
 }
@@ -199,7 +194,7 @@ void CheckScheduleInManual(){
   int time_now_sum = month()+day()+year()+(hour() * 60)+minute();
   int sent_time_sum = EEPROM.read(26)+EEPROM.read(27)+((EEPROM.read(28) << 8) + EEPROM.read(29))+(EEPROM.read(30)*60)+EEPROM.read(31);
 
-  if(time_now_sum>=sent_time_sum){
+  if(time_now_sum==sent_time_sum){
     EEPROM.update(25, 0);
 
     TurnOffRoomDevicePorts();
@@ -223,10 +218,9 @@ void CheckWhileInAuto(){
       file_ptr.seek((time_now/8));
       byte val = file_ptr.peek();
 
-      if(((val >> ((time_now%8)-1)) & 1))
-        set_room_device_status[x] = 1;
-      else
-        set_room_device_status[x] = 0;
+      set_room_device_status[x] = (val >> (time_now%8)) & 1;
+
+      Serial.println(set_room_device_status[x]);
 
       file_ptr.close();
     }
@@ -239,24 +233,22 @@ void TurnOnRoomDevicePorts(){
   for(int x=0; x<EEPROM.read(1)+1; x++)
     status_value ^= (-EEPROM.read(35+x) ^ status_value) & (1 << x);
 
-  if(status_value!=prev_status_value){
+  if(status_value!=prev_status_value)
     SendRoomDeviceStatus();
-    SendConsumption();
-  }
 
   prev_status_value = status_value;
 
   if(ble_status){
-    /*int status_flag = 0;
+    int status_flag = 0;
     for(int x=0; x<EEPROM.read(1)+1; x++){
       if(set_room_device_status[x]){
         status_flag = 1;
         break;
       }
-    }*/
+    }
 
-    /*if(status_flag){
-      tsk7.enableIfNot();*/
+    if(status_flag){
+      digitalWrite(11, HIGH);
 
       digitalWrite(EEPROM.read(0), set_room_device_status[0]);
       EEPROM.update(35, set_room_device_status[0]);
@@ -265,9 +257,11 @@ void TurnOnRoomDevicePorts(){
         digitalWrite(EEPROM.read(2+x), set_room_device_status[1+x]);
         EEPROM.update(36+x, set_room_device_status[1+x]);
       }
-    /*}
-    else
-      tsk7.disable();*/
+    }
+    else{
+      digitalWrite(11, LOW);
+      TurnOffRoomDevicePorts();
+    }
   }
   else
     TurnOffRoomDevicePorts();
@@ -301,8 +295,8 @@ void BLEFunction(){
       conn = checkifdisconnected();
       if (conn) {
         if (RXdata.equals("0")){
-          /*if(ble_status)
-            ble_status = 0;*/
+          if(ble_status)
+            ble_status = 0;
         }
         else if (RXdata.equals("1")){
           if(!ble_status)
@@ -330,7 +324,7 @@ void BLEFunction(){
       }
       if (currentTime - previousTime > 3000 && ATROLE1) {
         previousTime = currentTime;
-        Serial2.print("AT+DISI?");
+        Serial2.print("AT+DISC?");
         delay3s = 1;
         ATROLE1 = 0;
       }
@@ -359,11 +353,13 @@ void CheckBLEBuffer() {
   
   RXdata.toCharArray(buff, 500);  
   if(strstr(buff, "DISCE") != NULL){
-    if (strstr(buff, "74DAEAB326BC") != NULL){      
+    if (strstr(buff, "74DAEAB33302") != NULL){      
       if(!flagonPowerstatus){
         flagonPowerstatus=1;
-        flagoffPowerstatus=0;    
+        flagoffPowerstatus=0;  
         if(!ble_status){
+          digitalWrite(12, HIGH);
+          digitalWrite(13, LOW);
           ble_status = 1;
 
           TurnOnRoomDevicePorts();
@@ -373,12 +369,15 @@ void CheckBLEBuffer() {
     else{         
       if(!flagoffPowerstatus){
         flagoffPowerstatus=1;
-        flagonPowerstatus=0;   
-        /*if(ble_status){
+        flagonPowerstatus=0;  
+        digitalWrite(9, LOW); 
+        if(ble_status){
+          digitalWrite(12, LOW);
+          digitalWrite(13, HIGH);
           ble_status = 0;
 
           TurnOffRoomDevicePorts();
-        }*/ 
+        } 
       }             
     } 
   }         
@@ -390,7 +389,40 @@ void CalculateCurrent(){
   Irms = ((Vrms * 1000)/ACSSensitivity)-.11;
   if(Irms<0)Irms=0.0;
 
-  current_consump += Irms;
+  if(prev_current!=Irms){
+    consumption_per_hour += (prev_current * current_time_count);
+    prev_current = Irms;
+    current_time_count = 0;
+  }
+
+  current_time_count++;
+}
+
+void SendConsumption(){
+  consumption_per_hour = (consumption_per_hour * 220) / 1000;
+
+  byte consumption_data[sizeof(consumption_per_hour)+3];
+  consumption_data[0] = 0x05;
+  consumption_data[1] = (byte)EEPROM.read(12);
+  consumption_data[2] = sizeof(consumption_per_hour);
+
+  byte data[sizeof(consumption_per_hour)];
+  (String(consumption_per_hour)).getBytes(data, sizeof(consumption_per_hour));
+
+  for(int x=0; x<sizeof(data); x++)
+    consumption_data[3+x] = data[x];
+
+  Serial1.write(consumption_data, sizeof(consumption_data));
+  delay(50);
+
+  consumption_per_hour = 0;
+}
+
+void PrintDateTime(){
+  double test = (consumption_per_hour * 220) / 1000;
+
+  Serial.println(String(hour())+":"+String(minute())+":"+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
+  Serial.println("Module consumption: "+String(test)+"   Current: "+String(Irms)+"   Prev Current: "+String(prev_current)+"   Current Time: "+String(current_time_count));
 }
 
 void PerformXBeeOperation(int xbee_data_int[], int xbee_data_length){
@@ -418,10 +450,12 @@ void SyncDateTime(int xbee_data_int[], int xbee_data_length){
 
   datetime_sync_flag = 1;
 
-  tsk6.enable();
-
   tsk3.disable();
   runner.deleteTask(tsk3);
+
+  tsk6.enable();
+  tsk7.enable();
+  tsk8.enable();
 
   Serial1.print(String(hour())+" "+String(minute())+" "+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
   delay(50);
@@ -482,53 +516,55 @@ void TurnOffRoomDevicePorts(){
   }
 }
 
-void PrintDateTime(){
-  Serial.println(String(hour())+":"+String(minute())+":"+String(second())+" "+String(day())+" "+String(month())+" "+String(year()));
-}
-
 void SaveRoomSchedule(int xbee_data_int[], int xbee_data_length){
   String day_abr[7] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
+
+  if(xbee_data_int[0]==10){
+    for(int x=0; x<7; x++){
+      for(int y=0; y<EEPROM.read(1)+1; y++){
+        String file_path = day_abr[x]+"/"+String(y)+".txt";
+
+        if(SD.exists(file_path))
+          SD.remove(file_path);
+      }
+    }
+  }
 
   for(int x=0; x<xbee_data_int[1]; x++){
     for(int y=0; y<xbee_data_int[2+xbee_data_int[1]]; y++){
       String file_path = day_abr[xbee_data_int[2+x]-1]+"/"+String(xbee_data_int[3+xbee_data_int[1]+y])+".txt";
 
       byte file_data[180];  
-      for(int x=0; x<180; x++)
-        file_data[x] = 0;
+      for(int z=0; z<180; z++)
+        file_data[z] = 0;
 
       if(SD.exists(file_path)){
-        if(xbee_data_int[0]==6){
-          file_ptr = SD.open(file_path, FILE_READ);
-          if(file_ptr){
-            int x=0;
-            while(file_ptr.available())
-              file_data[x++] = file_ptr.read();
+        file_ptr = SD.open(file_path, FILE_READ);
+        if(file_ptr){
+          int z=0;
+          while(file_ptr.available())
+            file_data[z++] = file_ptr.read();
 
-            file_ptr.close();
-          }
+          file_ptr.close();
         }
 
         SD.remove(file_path);
       }
 
-      int start = ((xbee_data_int[3+xbee_data_int[1]+xbee_data_int[(2+xbee_data_int[1])]] << 8) + xbee_data_int[4+xbee_data_int[1]+xbee_data_int[(2+xbee_data_int[1])]]);
-      int end = ((xbee_data_int[5+xbee_data_int[1]+xbee_data_int[(2+xbee_data_int[1])]] << 8) + xbee_data_int[6+xbee_data_int[1]+xbee_data_int[(2+xbee_data_int[1])]]);
+      int start = ((xbee_data_int[3+xbee_data_int[1]+xbee_data_int[2+xbee_data_int[1]]] << 8) + xbee_data_int[4+xbee_data_int[1]+xbee_data_int[2+xbee_data_int[1]]]);
+      int end = ((xbee_data_int[5+xbee_data_int[1]+xbee_data_int[2+xbee_data_int[1]]] << 8) + xbee_data_int[6+xbee_data_int[1]+xbee_data_int[2+xbee_data_int[1]]]);
 
-      Serial.println("Start: "+String(start));
-      Serial.println("End: "+String(end));
-
-      for(int x=start; x<end; x++)
-        file_data[(int)x/8] ^= (-1 ^ file_data[(int)x/8]) & (1 << ((x%8)-1));
-
-      for(int x=0; x<180; x++)
-        Serial.println(file_data[x], HEX);
+      for(int z=start; z<end; z++)
+        file_data[(int)z/8] ^= (-1 ^ file_data[(int)z/8]) & (1 << (z%8));
 
       file_ptr = SD.open(file_path, FILE_WRITE);
       if(file_ptr){
+        Serial.println(file_path);
         file_ptr.write(file_data, 180);
         file_ptr.close();
       }
+
+      //delay(100);
     }
   }
 }
@@ -598,24 +634,6 @@ float getVPP()
   return result;
 }
 
-void SendConsumption(){
-  byte consumption_data[sizeof(current_consump)+3];
-  consumption_data[0] = 0x05;
-  consumption_data[1] = (byte)EEPROM.read(12);
-  consumption_data[2] = sizeof(current_consump);
-
-  byte data[sizeof(current_consump)];
-  (String(current_consump)).getBytes(data, sizeof(current_consump));
-
-  for(int x=0; x<sizeof(data); x++)
-    consumption_data[3+x] = data[x];
-
-  Serial1.write(consumption_data, sizeof(consumption_data));
-  delay(50);
-
-  current_consump = 0;
-}
-
 void SendRoomDeviceStatus(){
   unsigned char device_status[EEPROM.read(1)+3];
   device_status[0] = 0x07;
@@ -626,62 +644,4 @@ void SendRoomDeviceStatus(){
 
   Serial1.write(device_status, EEPROM.read(1)+3);
   delay(50);
-}
-
-void ProcessSerialData(){
-  if(serial_data_queue.equals("***")){
-    at_mode_flag = 1;
-    Serial.println("Entered AT mode...");
-  }
-  else if(!serial_data_queue.indexOf("ATID") && at_mode_flag){
-    Serial1.print("+++");
-    delay(1000);
-    Serial1.println(serial_data_queue);
-    Serial1.println("ATWR");
-    Serial1.println("ATCN");
-
-    int pan_id = (serial_data_queue.substring(serial_data_queue.indexOf(" ")+1)).toInt();
-    EEPROM.update(13, pan_id);
-
-    Serial.println("XBee configuration saved.");
-
-    at_mode_flag = 0;
-  }
-  else if(!serial_data_queue.indexOf("ID") && at_mode_flag){
-    int room_id = (serial_data_queue.substring(serial_data_queue.indexOf(" ")+1)).toInt();
-    EEPROM.update(12, room_id);
-
-    Serial.println("Room ID changed to "+serial_data_queue.substring(serial_data_queue.indexOf(" ")+1));
-
-    at_mode_flag = 0;
-  }
-  else if(!serial_data_queue.indexOf("RESET") && at_mode_flag){
-    for(int x=0; x<EEPROM.read(1)+2; x++)
-      EEPROM.update(x, 0);
-
-    for(int x=0; x<8; x++)
-      EEPROM.update(10+x, 0);
-
-    for(int x=0; x<7; x++)
-      EEPROM.update(25+x, 0);
-
-    for(int x=0; x<EEPROM.read(1)+1; x++)
-      EEPROM.update(35+x, 0);
-
-    EEPROM.update(1, 0);
-
-    Serial.println("RESET finished");
-
-    at_mode_flag = 0;
-  }
-
-  if(EEPROM.read(13) && EEPROM.read(12))
-    EEPROM.update(10, 1);
-
-  /*if(EEPROM.read(10)==1){
-    if(!datetime_sync_flag)*/
-      tsk3.enable();
-  /*}*/
-
-  serial_data_queue = "";
 }

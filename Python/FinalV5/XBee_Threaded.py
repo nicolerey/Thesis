@@ -126,12 +126,13 @@ class XBee(threading.Thread):
         # All bytes in message must be unescaped.
         #  Only exception is the start delimiter at the beginning
         frame = self.Unescape(msg)
+
         if not frame:
             return False
 
         LSB = frame[1]
         # Frame (minus checksum) must contain at least length of LSB
-        if LSB > (len(frame[2:]) - 1):
+        if LSB > (len(frame[2:])-1):
             return False
 
         # Validate checksum
@@ -164,11 +165,11 @@ class XBee(threading.Thread):
                 skip = False
                 continue
 
-            if msg[i] == 0x7D:
-                out.append(msg[i+1] ^ 0x20)
-                skip = True
-            else:
-                out.append(msg[i])
+            # if msg[i] == 0x7D:
+            #     out.append(msg[i+1] ^ 0x20)
+            #     skip = True
+            # else:
+            out.append(msg[i])
 
         return out
 
