@@ -35,6 +35,7 @@ void setup(){
   readyRole1=1;
 
   Serial2.begin(9600);
+  Serial.begin(9600);
 
   runner.init();
   runner.addTask(ble_tsk1);
@@ -68,7 +69,6 @@ void BLEFunction(){
       conn = checkifdisconnected(); 
       if (conn) {
         if (RXdata.equals("12345")) {
-          digitalWrite(18, HIGH);
           Serial2.print(1);
           delay(5);
           con_stat = 1;
@@ -87,13 +87,22 @@ void BLEFunction(){
         if (RXdata.equals("0")){
           if(ble_status){
             ble_status = 0;
-            digitalWrite(9, LOW);
+            
+          digitalWrite(9, LOW);
+          digitalWrite(8, LOW);
+          digitalWrite(7, LOW);
+          digitalWrite(6, LOW);
+          digitalWrite(5, LOW);
           }
         }
         else if (RXdata.equals("1")){
           if(!ble_status){            
-            ble_status = 1;
-            digitalWrite(9, HIGH);
+            ble_status = 1;            
+          digitalWrite(9, HIGH);
+          digitalWrite(8, HIGH);
+          digitalWrite(7, HIGH);
+          digitalWrite(6, HIGH);
+          digitalWrite(5, HIGH);
           }
         }
         else if (RXdata.equals("2"))
@@ -149,8 +158,6 @@ int checkifconnected() {
   if (strstr(buff, "OK+CONN") != NULL) {
     requestcon = 1;
     RXdata = "";
-
-    digitalWrite(8, HIGH);
   }
   else {
     requestcon = 0;
@@ -168,8 +175,6 @@ int checkifdisconnected() {
     ATROLE1 = 0;
     con_stat = 0;
     readyRole1=1;
-
-    digitalWrite(8, LOW);
 
     if(ble_status){
       ble_status = 0;
@@ -191,9 +196,9 @@ void CheckBLEBuffer() {
   }
   
   RXdata.toCharArray(buff, 500); 
-  //Serial.print(RXdata); 
+  Serial.println(RXdata); 
   if(strstr(buff, "DISCE") != NULL){
-    if (strstr(buff, "74DAEAB33302") != NULL){      
+    if (strstr(buff, "74DAEAB326BC") != NULL){      
       if(!flagonPowerstatus){
         flagonPowerstatus=1;
         flagoffPowerstatus=0;    

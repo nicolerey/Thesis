@@ -1,0 +1,3 @@
+addModulePortName=/dev/ttyUSB2
+discoverModulesPorts=/dev/ttyUSB0
+eclipse.preferences.version=1

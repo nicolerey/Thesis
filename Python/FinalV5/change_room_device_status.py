@@ -32,8 +32,7 @@ def ChangeRoomDeviceStatus(sql, xbee, rooms_id):
 			ConvertIntToHex(rooms_result[1]),
 			ConvertIntToHex(len(room_devices_result))
 			)
-		print int(room_schedules_result[2]/60)
-		print room_schedules_result[2]%60
+		
 		for room_device in room_devices_result:
 			sql.GetWhereQuery("room_device_schedules", "room_devices_id={} and room_schedules_id={}".format(room_device[1], room_schedules_result[0]))
 			result = sql.FetchOne()
@@ -46,8 +45,6 @@ def ChangeRoomDeviceStatus(sql, xbee, rooms_id):
 			room_devices_status_data = "{} {}".format(room_devices_status_data, value)
 
 		room_devices_status_data = "2E {} {}".format(ConvertIntToHex(len(bytearray.fromhex(room_devices_status_data))), room_devices_status_data)
-
-		print room_devices_status_data
 
 		xbee.Send(bytearray.fromhex(room_devices_status_data), rooms_result[0])
 

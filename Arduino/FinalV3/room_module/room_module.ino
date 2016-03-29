@@ -55,7 +55,7 @@ void CheckXBeeBuffer(){
         xbee_data_int[x] = (int)((byte)xbee_data[2+x]);
 
       PerformXBeeOperation(xbee_data_int, xbee_data_length);
-
+ 
       xbee_data = xbee_data.substring(xbee_data_length+2);
     }
     else{

@@ -11,3 +11,35 @@ Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
 
 !ENTRY org.eclipse.equinox.p2.repository 2 0 2016-03-13 15:43:32.644
 !MESSAGE Server returned lastModified <= 0 for ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!SESSION 2016-03-29 12:18:17.952 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_21
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -clearPersistedState
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clearPersistedState
+
+!ENTRY org.eclipse.ui 2 2 2016-03-29 12:18:34.611
+!MESSAGE Invalid preference category path: org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage (bundle: org.eclipse.equinox.p2.ui.sdk.scheduler, page: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage)
+
+!ENTRY com.digi.xctung.p2.update 4 0 2016-03-29 12:18:36.619
+!MESSAGE Error while downloading Firmware Library: The server name or address (ftp1.digi.com) could not be resolved
+
+!ENTRY org.eclipse.osgi 2 1 2016-03-29 12:18:37.160
+!MESSAGE NLS unused message: CacheManager_CannotLoadNonUrlLocation in: org.eclipse.equinox.internal.p2.repository.messages
+
+!ENTRY org.eclipse.equinox.p2.transport.ecf 4 1006 2016-03-29 12:18:37.165
+!MESSAGE Unknown Host: ftp://ftp1.digi.com/support/XCTU-NG/repository/content.xml
+!STACK 0
+java.net.UnknownHostException: ftp1.digi.com
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.doConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.tryConnect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.ftp.impl.FtpClient.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.ftp.FtpURLConnection.getInputStream(Unknown Source)
+	at org.eclipse.ecf.provider.filetransfer.browse.URLFileSystemBrowser.runRequest(URLFileSystemBrowser.java:115)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:69)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
