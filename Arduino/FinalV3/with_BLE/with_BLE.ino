@@ -406,7 +406,7 @@ void CheckBLEBuffer() {
   
   RXdata.toCharArray(buff, 500);  
   if(strstr(buff, "DISCE") != NULL){
-    if (strstr(buff, "74DAEAB326BC") != NULL){      
+    if (strstr(buff, "74DAEAB33302") != NULL){      
       if(!flagonPowerstatus){
         flagonPowerstatus=1;
         flagoffPowerstatus=0;  
@@ -441,7 +441,7 @@ void CheckBLEBuffer() {
 void CalculateCurrent(){
   VoltageP2P = getVPP();
   Vrms = (VoltageP2P/2.0) *0.7071; 
-  Irms = ((Vrms * 1000)/ACSSensitivity)-.11;
+  Irms = ((Vrms * 1000)/ACSSensitivity)-.08;
   if(Irms<0)Irms=0.0;
 
   if(prev_current!=Irms){
@@ -774,8 +774,8 @@ float getVPP()
 {
   float result;  
   int AnalogRead;             
-  int Vplus = 512;        
-  int Vminus = 512;       
+  int Vplus = 511;        
+  int Vminus = 511;       
   
   unsigned long start_time = millis();
   while((millis()-start_time) < 1000) //sample for 1 Sec

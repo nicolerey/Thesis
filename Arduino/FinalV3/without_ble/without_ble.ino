@@ -94,7 +94,7 @@ char buff[500];
 int data, x, conn, con_stat, requestcon, DISCE, ATROLE1, readyRole1, delay3s,flagonPowerstatus,flagoffPowerstatus,notdiscovered;
 long previousTime = 0;
 
-int ble_status = 0;
+int ble_status = 1;
 /**********************/
 
 void setup(){
@@ -337,7 +337,7 @@ void BLEFunction(){
           if(ble_status){
             digitalWrite(12, LOW);
             digitalWrite(13, HIGH);
-            ble_status = 0;
+            //ble_status = 0;
 
             TurnOffRoomDevicePorts();
           }
@@ -431,7 +431,7 @@ void CheckBLEBuffer() {
 
           digitalWrite(12, LOW);
           digitalWrite(13, HIGH);
-          ble_status = 0;
+          //ble_status = 0;
         } 
       }             
     } 
@@ -441,7 +441,7 @@ void CheckBLEBuffer() {
 void CalculateCurrent(){
   VoltageP2P = getVPP();
   Vrms = (VoltageP2P/2.0) *0.7071; 
-  Irms = ((Vrms * 1000)/ACSSensitivity)-.11;
+  Irms = ((Vrms * 1000)/ACSSensitivity)-.07;
   if(Irms<0)Irms=0.0;
 
   if(prev_current!=Irms){
@@ -749,7 +749,7 @@ int checkifdisconnected() {
     readyRole1=1;
 
     if(ble_status){
-      ble_status = 0;
+      //ble_status = 0;
 
       master_key_status = 0;
 
@@ -774,8 +774,8 @@ float getVPP()
 {
   float result;  
   int AnalogRead;             
-  int Vplus = 512;        
-  int Vminus = 512;       
+  int Vplus = 511;        
+  int Vminus = 511;       
   
   unsigned long start_time = millis();
   while((millis()-start_time) < 1000) //sample for 1 Sec
@@ -814,7 +814,7 @@ void TurnOffDelay(){
     digitalWrite(12, LOW);
     digitalWrite(13, HIGH);
 
-    ble_status = 0;
+    //ble_status = 0;
 
     TurnOffRoomDevicePorts();
 

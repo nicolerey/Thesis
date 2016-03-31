@@ -198,7 +198,7 @@ void CheckBLEBuffer() {
   RXdata.toCharArray(buff, 500); 
   Serial.println(RXdata); 
   if(strstr(buff, "DISCE") != NULL){
-    if (strstr(buff, "74DAEAB326BC") != NULL){      
+    if (strstr(buff, "74DAEAB33302") != NULL){      
       if(!flagonPowerstatus){
         flagonPowerstatus=1;
         flagoffPowerstatus=0;    

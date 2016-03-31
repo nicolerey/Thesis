@@ -54,7 +54,7 @@ def ReceiveXBeeData(val):
 			sql.Commit()
 
 			if msg[16]:
-				sql.InsertQuery("status_logs", "1, CURRENT_TIMESTAMP")
+				sql.InsertQuery("status_logs", "{}, 1, CURRENT_TIMESTAMP".format(msg[15]))
 				sql.Commit()
 
 				status_update_flag = 1
@@ -63,22 +63,23 @@ def ReceiveXBeeData(val):
 			sql.SelectColumn("room_devices_id")
 			room_devices_result = sql.FetchAll()
 
-			x = 0
-			for device in room_devices_result:
-				sql.UpdateQuery("room_devices", [["rooms_status", msg[17+x]]], "room_devices_id={}".format(device[0]))
-				sql.Commit()
+			if msg[17]:
+				x = 0
+				for device in room_devices_result:
+					sql.UpdateQuery("room_devices", [["rooms_status", msg[17+x]]], "room_devices_id={}".format(device[0]))
+					sql.Commit()
 
-				if not status_update_flag:
-					if msg[17+x]:
-						sql.InsertQuery("status_logs", "1, CURRENT_TIMESTAMP")
-						sql.Commit()
+					if not status_update_flag:
+						if msg[17+x]:
+							sql.InsertQuery("status_logs", "{}, 1, CURRENT_TIMESTAMP".format(msg[15]))
+							sql.Commit()
 
-						status_update_flag = 1
+							status_update_flag = 1
 
-				x += 1
+					x += 1
 
 			if not status_update_flag:
-				sql.InsertQuery("status_logs", "0, CURRENT_TIMESTAMP")
+				sql.InsertQuery("status_logs", "{}, 0, CURRENT_TIMESTAMP".format(msg[15]))
 				sql.Commit()
 
 			sql.UpdateQuery("check_rooms", [["check_rooms_status", 1]], "check_rooms_id>0")

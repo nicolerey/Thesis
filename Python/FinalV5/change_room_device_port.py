@@ -17,8 +17,9 @@ def ChangeRoomDevicePort(sql, xbee, rooms_id):
 
 	if rooms_result:
 		port_data = "09 {} {}".format(ConvertIntToHex(rooms_result[0]), ConvertIntToHex(len(room_devices_result)))
-		for device_port in room_devices_result:
-			port_data = "{} {}".format(port_data, ConvertIntToHex(device_port[0]))
+		if room_devices_result:
+			for device_port in room_devices_result:
+				port_data = "{} {}".format(port_data, ConvertIntToHex(device_port[0]))
 
 		port_data = "2E {} {}".format(ConvertIntToHex(len(bytearray.fromhex(port_data))), port_data)
 
